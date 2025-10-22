@@ -1,3 +1,6 @@
+-- Based on parts of telescope-fzf-native.nvim (MIT License)
+-- Original author: Simon Hauser
+
 local ffi = require("ffi")
 local library_path = (function()
 	local dirname = string.sub(debug.getinfo(1).source, 2, #"/fzs_lib.lua" * -1)
