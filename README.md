@@ -47,7 +47,7 @@ The sorter doesn't support regular expression, inverse search, prefix or suffix 
 #### Lazy
 
 ```lua
-   --as dependencie of telescop
+   --as dependency of telescope
     dependencies = {
       {
         'kingShazor/telescope-fuzzy-sorter.nvim',
