@@ -42,3 +42,25 @@ The fuzzy mode is case-insensitive and allows small gaps, such fill characters w
 ## Limitations
 The sorter doesn't support regular expression, inverse search, prefix or suffix search.  
 
+## Installation
+
+#### Lazy
+
+```lua
+   --as dependencie of telescop
+    dependencies = {
+      {
+        'kingShazor/telescope-fuzzy-sorter.nvim',
+        build = 'make',
+        cond = function()
+          return vim.fn.executable 'make' == 1
+        end,
+      },
+```
+#### register extension
+```lua
+-- load_extension, somewhere after setup function:
+      pcall(require('telescope').load_extension, 'fuzzy_sorter')
+```
+
+
