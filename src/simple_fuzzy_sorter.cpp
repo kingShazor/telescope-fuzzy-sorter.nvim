@@ -220,10 +220,7 @@ namespace
     }
 
     if ( score != MISMATCH && blockedRanges )
-    {
       blockedRanges->push_back( pair( resultPositions.front(), resultPositions.back() ) );
-      sort( blockedRanges->begin(), blockedRanges->end() );
-    }
 
     if ( getPositions )
       return resultPositions;

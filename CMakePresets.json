@@ -27,6 +27,18 @@
       "name": "make",
       "inherits": "base",
       "generator": "Unix Makefiles"
+    },
+    {
+      "name": "perf",
+      "inherits": "base",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "ReleaseWithDebInfo",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "ENABLE_PROFILING": "1"
+      }
     }
   ]
 }
