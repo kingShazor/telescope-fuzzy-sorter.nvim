@@ -1,4 +1,4 @@
-CXXFLAGS += -Wall -fpic -std=c++23 -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow -Wfloat-equal -Wcast-align -Wundef -Wnon-virtual-dtor -Werror
+CXXFLAGS += -Wall -fpic -std=c++23 -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow -Wfloat-equal -Wcast-align -Wundef -Wnon-virtual-dtor
 
 ifeq ($(OS),Windows_NT)
     CXX = clang++
@@ -22,6 +22,10 @@ else
     MKD = mkdir -p
     RM = rm -rf
     TARGET := libfuzzy_sorter.so
+endif
+
+ifdef STRICT
+	CXXFLAGS += -Werror
 endif
 
 all: build/$(TARGET)
