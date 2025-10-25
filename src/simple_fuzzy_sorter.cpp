@@ -97,13 +97,9 @@ namespace
    */
   result_t get_strict_score( const string_view &text, const string_view &pattern, const bool getPositions )
   {
-    if ( const auto it = search( text.begin(),
-                                 text.end(),
-                                 boyer_moore_horspool_searcher( pattern.begin(), pattern.end() ) );
-         it != text.end() )
+    if ( const auto pos = text.find( pattern ); pos != std::string::npos )
     {
       const uint patternSize = static_cast< uint >( pattern.size() );
-      const auto pos = static_cast< uint >( it - text.begin() );
       if ( getPositions )
       {
         vector< uint > positions;
@@ -180,7 +176,13 @@ namespace
           {
             ++gap;
             if ( gap > MAX_GAP )
+            {
+              if ( penalty == 0 )
+                i = positions.back(); // Not 100% correct but very fast without penalty check
+              else if ( positions.size() > 1 )
+                i = positions[ 1 ]; // second position should be save s: "ABX" in "AAAB" will all greedy apply to B
               break;
+            }
           }
         }
         if ( pos == text.size() || gap > MAX_GAP )
@@ -189,9 +191,7 @@ namespace
         if ( positions.empty() )
           i = pos;
         else if ( gap > 0 )
-        {
           penalty += ( gap * static_cast< uint >( GAP_PENALTY ) );
-        }
         positions.push_back( pos );
         startSearchPos = pos + 1;
       }
@@ -239,6 +239,17 @@ namespace
   {
     if ( pattern.empty() )
       return getPositions ? result_t{ vector< uint >() } : result_t{ FULL_MATCH };
+    if ( pattern.size() == 1 ) // this will be applied on all file-names, so this must be very fast
+    {
+      if ( std::islower( pattern.back() ) )
+      {
+        const auto res = get_strict_score( text, string{ static_cast< char >( std::toupper( static_cast< int >( pattern.back() ) ) ) }, getPositions );
+        if ( getPositions || std::get< int >( res ) != MISMATCH )
+          return res;
+      }
+
+      return get_strict_score( text, pattern, getPositions );
+    }
     if ( pattern.size() > text.size() )
       return getPositions ? result_t{ vector< uint >() } : result_t{ MISMATCH };
 

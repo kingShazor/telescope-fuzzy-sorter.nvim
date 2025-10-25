@@ -199,6 +199,12 @@ TEST( FuzzySorter, fuzzy_do_not_use_same_word_but_find_word )
   EXPECT_EQ( score, FULL_MATCH * 2 - 2 * BOUNDARY_WORD );
 }
 
+TEST( FuzzySorter, fuzzy_serch_for_one_char )
+{
+  auto score = fzs_get_score( "network/Mail_queue.cpp", "m" );
+  EXPECT_EQ( score, FULL_MATCH - BOUNDARY_WORD );
+}
+
 TEST( FuzzySorter, fuzzy_perf_test )
 {
   std::vector< std::string > src_files = { "include/logging/logger.h",
@@ -221,10 +227,10 @@ TEST( FuzzySorter, fuzzy_perf_test )
                                            "include/core/thread_pool.h",
                                            "src/core/memory_manager.cpp",
                                            "include/logging/error_handler.h" };
-  const uint n = 5000000;
+  const uint n = 6000000;
   const uint rounds = n / src_files.size();
-  // const char *searchWord = "f"; //"util engine cpp";
-  const char *searchWord = "math engine cpp";
+  const char *searchWord = "f"; //"util engine cpp";
+  // const char *searchWord = "math engine cpp";
   for ( int i = 0; i < rounds; ++i )
     for ( const auto &file : src_files )
     {

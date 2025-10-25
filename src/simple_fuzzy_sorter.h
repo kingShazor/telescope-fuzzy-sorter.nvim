@@ -12,6 +12,7 @@ namespace fuzzy_score_n
     BOUNDARY_BOTH = BOUNDARY_WORD * 2,
     GAP_PENALTY = 5,
     MAX_GAP = 2,
+    MAX_PENALTY = MAX_GAP * GAP_PENALTY,
     MATCH_CHAR = 10,
   };
 } // namespace fuzzy_score_n

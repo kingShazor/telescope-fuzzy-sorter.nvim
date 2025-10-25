@@ -6,7 +6,7 @@ fuzzy-sorter is a custom sorter for Telescope. It will be used to find files. My
 
 The input query is split into individual search words. Each search word is scored separately. There are two automatically applied modes: a fuzzy mode and a strict mode. 
 Strict mode is triggered for search words containing uppercase or non-ASCII characters.
-It performs a case-sensitive, continuous substring search using the Boyer–Moore–Horspool algorithm.
+It performs a case-sensitive, continuous substring search.
 The fuzzy mode is case-insensitive and allows small gaps, such fill characters will not break the match.
 
 #### fuzzy-examples
@@ -70,9 +70,8 @@ The sorter doesn't support regular expression, inverse search, prefix or suffix 
 
 - [ ] lua opt: user can switch off global/files sorter
 - [ ] lua opt: understand that prefilters
-- [ ] c++: write a usefull performance test (let chatgpt generate some names)
-- [ ] c++: optimize fuzzy - use range instead of vector to save positions
-- [ ] c++: optimize fuzzy - if pattern can't be found at pattern index p > 1, we probably don't need to start at i + 1 again
+- [x] c++: write a usefull performance test (let chatgpt generate some names)
+- [x] c++: optimize fuzzy - if pattern can't be found at pattern index p > 1, we probably don't need to start at i + 1 again
 - [ ] README.md add performance pros
 - [ ] README.md add credits
 
