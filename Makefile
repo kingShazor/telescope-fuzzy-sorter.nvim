@@ -17,6 +17,7 @@ else
 				CXXFLAGS += -Wno-stringop-overflow
     else
         CXX = clang++
+				CXXFLAGS += -Wno-shorten-64-to-32
     endif
     MKD = mkdir -p
     RM = rm -rf
