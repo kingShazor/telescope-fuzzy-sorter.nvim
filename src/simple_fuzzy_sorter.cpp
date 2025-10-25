@@ -144,17 +144,20 @@ namespace
     resultPositions.clear();
 
     const uint maxScore = static_cast< uint >( pattern.size() * MATCH_CHAR );
-    uint startPos = 0;
+    uint startSearchPos = 0;
+    uint gap = 0;
     for ( uint i = 0; i <= maxPos; ++i )
     {
       uint penalty = 0;
-      startPos = i;
+      startSearchPos = i;
       for ( const char patternChar : pattern )
       {
-        uint pos = startPos;
+        uint pos = startSearchPos;
+        gap = 0;
         // find fuzzy position
         for ( ; pos < text.size(); ++pos )
         {
+          // ignore blocked ranges
           if ( blockedRanges && !blockedRanges->empty() )
           {
             bool matchRange = false;
@@ -173,21 +176,24 @@ namespace
             textChar = static_cast< char >( tolower( static_cast< unsigned char >( textChar ) ) );
           if ( patternChar == textChar )
             break;
+          if ( !positions.empty() )
+          {
+            ++gap;
+            if ( gap > MAX_GAP )
+              break;
+          }
         }
-        if ( pos == text.size() )
+        if ( pos == text.size() || gap > MAX_GAP )
           break;
 
         if ( positions.empty() )
           i = pos;
-        else
+        else if ( gap > 0 )
         {
-          if ( const uint gap = pos - startPos; gap > MAX_GAP )
-            break;
-          else if ( gap > 0 )
-            penalty += ( gap * static_cast< uint >( GAP_PENALTY ) );
+          penalty += ( gap * static_cast< uint >( GAP_PENALTY ) );
         }
         positions.push_back( pos );
-        startPos = pos + 1;
+        startSearchPos = pos + 1;
       }
 
       // Impossible match, when first char can't be found
