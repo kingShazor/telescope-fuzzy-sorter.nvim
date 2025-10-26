@@ -131,7 +131,7 @@ namespace
                             vector< pair< uint, uint > > *blockedRanges = nullptr )
   {
     int score = MISMATCH;
-    const size_t maxStartPos = text.size() - pattern.size() + 1;
+    const size_t maxStartPos = text.size() - pattern.size() +1;
     // static vectors are faster
     static vector< uint > positions;
     static vector< uint > resultPositions;
@@ -146,7 +146,7 @@ namespace
     {
       penalty = 0;
       startSearchPos = i;
-      uint maxVarStartPos = maxStartPos - 1;
+      uint maxVarStartPos = maxStartPos -1;
       for ( const char patternChar : pattern )
       {
         uint pos = startSearchPos;
@@ -250,8 +250,8 @@ namespace
       if ( std::islower( p.back() ) )
       {
         const auto res = get_strict_score( text,
-                                           string{
-                                             static_cast< char >( std::toupper( static_cast< int >( p.back() ) ) ) },
+                                           string{ static_cast< char >(
+                                             std::toupper( static_cast< int >( p.back() ) ) ) },
                                            getPositions );
         if ( getPositions || std::get< int >( res ) != MISMATCH )
           return res;
@@ -261,7 +261,6 @@ namespace
     }
 
     const char sep = ' ';
-
     struct patternHelper_c
     {
       string_view pattern;
@@ -352,24 +351,12 @@ namespace
   }
 } // namespace
 
-namespace fuzzy_score_n
-{
-  // ma score is the best :)
-  int fzs_get_score( const char *text, const char *pattern )
-  {
-    return std::get< int >( get_score( text, pattern, false ) );
-  }
-} // namespace fuzzy_score_n
-
 // -------- C-Interface ----------
 
-double fzs_get_score( const char *text, const char *pattern )
+// ma score is the best :)
+int fzs_get_score( const char *text, const char *pattern )
 {
-  const int score = fuzzy_score_n::fzs_get_score( text, pattern );
-  if ( score == MISMATCH )
-    return -1.0;
-
-  return static_cast< double >( 1 ) / static_cast< double >( score );
+  return std::get< int >( get_score( text, pattern, false ) );
 }
 
 // positions will be displayed by the gui

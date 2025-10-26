@@ -25,7 +25,12 @@ local get_fuzzy_sorter = function(_) --todo use opts - for what?
 		start = function(_, _) end,
 		discard = true,
 		scoring_function = function(_, prompt, line)
-			return fuzzy_sorter.get_score(line, prompt)
+			local score = fuzzy_sorter.get_score(line, prompt)
+			if score == 0 then
+				return -1
+			else
+				return 1 / score
+			end
 		end,
 		highlighter = function(self, prompt, display)
 			return fuzzy_sorter.get_pos(display, prompt)
@@ -87,9 +92,9 @@ return require("telescope").register_extension({
 		end
 
 		local p = "fuzzy"
-		eq(1 / 100, fuzzy_sorter.get_score("src/fuzzy.cpp", p))
-		eq(-1, fuzzy_sorter.get_score("src/strict.cpp", p))
-		eq(1 / 80, fuzzy_sorter.get_score("src/fiuzzay.h", p))
+		eq(100, fuzzy_sorter.get_score("src/fuzzy.cpp", p))
+		eq(0, fuzzy_sorter.get_score("src/strict.cpp", p))
+		eq(80, fuzzy_sorter.get_score("src/fiuzzay.h", p))
 
 		if good then
 			ok("lib working as expected")
