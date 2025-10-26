@@ -131,7 +131,7 @@ namespace
                             vector< pair< uint, uint > > *blockedRanges = nullptr )
   {
     int score = MISMATCH;
-    const size_t maxStartPos = text.size() - pattern.size() +1;
+    const size_t maxStartPos = text.size() - pattern.size() + 1;
     // static vectors are faster
     static vector< uint > positions;
     static vector< uint > resultPositions;
@@ -146,7 +146,7 @@ namespace
     {
       penalty = 0;
       startSearchPos = i;
-      uint maxVarStartPos = maxStartPos -1;
+      uint maxVarStartPos = maxStartPos - 1;
       for ( const char patternChar : pattern )
       {
         uint pos = startSearchPos;
@@ -250,8 +250,8 @@ namespace
       if ( std::islower( p.back() ) )
       {
         const auto res = get_strict_score( text,
-                                           string{ static_cast< char >(
-                                             std::toupper( static_cast< int >( p.back() ) ) ) },
+                                           string{
+                                             static_cast< char >( std::toupper( static_cast< int >( p.back() ) ) ) },
                                            getPositions );
         if ( getPositions || std::get< int >( res ) != MISMATCH )
           return res;
@@ -261,6 +261,7 @@ namespace
     }
 
     const char sep = ' ';
+
     struct patternHelper_c
     {
       string_view pattern;
