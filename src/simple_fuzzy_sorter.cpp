@@ -131,7 +131,7 @@ namespace
                             vector< pair< uint, uint > > *blockedRanges = nullptr )
   {
     int score = MISMATCH;
-    const size_t maxStartPos = text.size() - pattern.size();
+    const size_t maxStartPos = text.size() - pattern.size() +1;
     // static vectors are faster
     static vector< uint > positions;
     static vector< uint > resultPositions;
@@ -141,16 +141,19 @@ namespace
     const uint maxScore = static_cast< uint >( pattern.size() * MATCH_CHAR );
     uint startSearchPos = 0;
     uint gap = 0;
-    for ( uint i = 0; i <= maxStartPos; ++i )
+    uint penalty = 0;
+    for ( uint i = 0; i < maxStartPos; ++i )
     {
-      uint penalty = 0;
+      penalty = 0;
       startSearchPos = i;
+      uint maxVarStartPos = maxStartPos -1;
       for ( const char patternChar : pattern )
       {
         uint pos = startSearchPos;
+        ++maxVarStartPos;
         gap = 0;
         // find fuzzy position
-        for ( ; pos < text.size(); ++pos )
+        for ( ; pos < maxVarStartPos; ++pos )
         {
           // ignore blocked ranges
           if ( blockedRanges && !blockedRanges->empty() )
@@ -184,7 +187,7 @@ namespace
             }
           }
         }
-        if ( pos == text.size() || gap > MAX_GAP )
+        if ( pos >= maxVarStartPos || gap > MAX_GAP )
           break;
 
         if ( positions.empty() )
