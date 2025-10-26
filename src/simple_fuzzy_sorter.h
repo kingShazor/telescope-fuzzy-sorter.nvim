@@ -15,6 +15,8 @@ namespace fuzzy_score_n
     MAX_PENALTY = MAX_GAP * GAP_PENALTY,
     MATCH_CHAR = 10,
   };
+
+  int fzs_get_score( const char *text, const char *pattern );
 } // namespace fuzzy_score_n
 
 extern "C"
@@ -25,6 +27,6 @@ extern "C"
     unsigned int size;
   } fzs_position_t;
 
-  int fzs_get_score( const char *text, const char *pattern );
+  double fzs_get_score( const char *text, const char *pattern );
   fzs_position_t *fzs_get_positions( const char *text, const char *pattern );
 }
