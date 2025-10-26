@@ -131,7 +131,7 @@ namespace
                             vector< pair< uint, uint > > *blockedRanges = nullptr )
   {
     int score = MISMATCH;
-    const size_t maxPos = text.size() - pattern.size();
+    const size_t maxStartPos = text.size() - pattern.size();
     // static vectors are faster
     static vector< uint > positions;
     static vector< uint > resultPositions;
@@ -141,7 +141,7 @@ namespace
     const uint maxScore = static_cast< uint >( pattern.size() * MATCH_CHAR );
     uint startSearchPos = 0;
     uint gap = 0;
-    for ( uint i = 0; i <= maxPos; ++i )
+    for ( uint i = 0; i <= maxStartPos; ++i )
     {
       uint penalty = 0;
       startSearchPos = i;
@@ -239,7 +239,7 @@ namespace
    */
   result_t get_score( const string_view &text, const char *pattern, const bool getPositions )
   {
-    if ( pattern == nullptr || pattern[ 0 ] == '\0' )
+    if ( pattern == nullptr || pattern[ 0 ] == '\0' ) // empty pattern must return match, because of discard
       return getPositions ? result_t{ vector< uint >() } : result_t{ FULL_MATCH };
     if ( pattern[ 1 ] == '\0' ) // this will be applied on all file-names, so this must be very fast
     {
@@ -258,7 +258,6 @@ namespace
     }
 
     const char sep = ' ';
-
     struct patternHelper_c
     {
       string_view pattern;
@@ -305,6 +304,9 @@ namespace
         }
       }
     }
+
+    if ( cachePattern.first.size() > text.size() )
+      return getPositions ? result_t{ vector< uint >() } : result_t{ MISMATCH };
 
     // optimization reason: reduce creation of empty vectors
     if ( patternHelpers.size() == 1 )

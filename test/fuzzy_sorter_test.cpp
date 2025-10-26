@@ -202,6 +202,12 @@ TEST( FuzzySorter, fuzzy_do_not_use_same_word_but_find_word )
   EXPECT_EQ( score, FULL_MATCH * 2 - 2 * BOUNDARY_WORD );
 }
 
+TEST( FuzzySorter, fuzzy_seg_fault )
+{
+  auto score = fzs_get_score( "mach", "wrapper" );
+  EXPECT_EQ( score, MISMATCH );
+}
+
 TEST( FuzzySorter, fuzzy_serch_for_one_char )
 {
   using namespace std;
