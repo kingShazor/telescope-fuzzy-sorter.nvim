@@ -8,6 +8,7 @@ if(ENABLE_PROFILING)
   add_link_options(-g -fno-omit-frame-pointer)
 endif()
 
+# add_compile_options(-march=native -O3)
 add_library(${PROJECT_NAME} SHARED "src/simple_fuzzy_sorter.cpp")
 
 target_include_directories(${PROJECT_NAME} PUBLIC

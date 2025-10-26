@@ -19,7 +19,7 @@ ffi.cdef([[
   } fzs_position_t;
 
   fzs_position_t *fzs_get_positions(const char *text, const char *pattern);
-  int32_t fzs_get_score(const char *text, const char *pattern);
+  double fzs_get_score(const char *text, const char *pattern);
 ]])
 
 local fzs = {}

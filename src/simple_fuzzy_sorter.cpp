@@ -388,12 +388,24 @@ namespace
   }
 } // namespace
 
+namespace fuzzy_score_n
+{
+  // ma score is the best :)
+  int fzs_get_score( const char *text, const char *pattern )
+  {
+    return std::get< int >( get_score( text, pattern, false ) );
+  }
+} // namespace fuzzy_score_n
+
 // -------- C-Interface ----------
 
-// ma score is the best :)
-int fzs_get_score( const char *text, const char *pattern )
+double fzs_get_score( const char *text, const char *pattern )
 {
-  return std::get< int >( get_score( text, pattern, false ) );
+  const int score = fuzzy_score_n::fzs_get_score( text, pattern );
+  if ( score == MISMATCH )
+    return -1.0;
+
+  return static_cast< double >( 1 ) / static_cast< double >( score );
 }
 
 // positions will be displayed by the gui
