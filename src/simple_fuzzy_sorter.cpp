@@ -228,7 +228,13 @@ namespace
   }
 
   /*
-   * split pattern into tokens. Small tokens or with upper case char are strict searched.
+   * This Function will be called within two steps: calcing score (first step) calcing positions to highlight characters
+   * (seocnd step). Telescope uses discard mode, so MISMATCHs in step one will be discarded. So when positions are
+   * calculated, we know that the pattern already matches.
+   * Steps:
+   *   -plit pattern into tokens. tokens with one sign or with upper case char well be searched strictly.
+   *   -calc strict or fuzzy scors
+   *   -put togehter multi token results
    * \param getPositions true: get positions instead of a rating
    */
   result_t get_score( const string_view &text, const string_view &pattern, const bool getPositions )
@@ -239,7 +245,10 @@ namespace
     {
       if ( std::islower( pattern.back() ) )
       {
-        const auto res = get_strict_score( text, string{ static_cast< char >( std::toupper( static_cast< int >( pattern.back() ) ) ) }, getPositions );
+        const auto res = get_strict_score( text,
+                                           string{ static_cast< char >(
+                                             std::toupper( static_cast< int >( pattern.back() ) ) ) },
+                                           getPositions );
         if ( getPositions || std::get< int >( res ) != MISMATCH )
           return res;
       }
@@ -258,35 +267,42 @@ namespace
       bool strict;
     };
 
-    // creating a cache doesn't make sense: costs generating tokens ~= creating a cache
-    vector< patternHelper_c > patternHelpers;
-    bool strict = false;
-    for ( uint i = 0; i < pattern.size(); ++i )
+    // a small cache for the last pattern - so we don't need to create every check patternHelper
+    static pair< string, vector< patternHelper_c > > cachePattern;
+    vector< patternHelper_c > &patternHelpers = cachePattern.second;
+    if ( cachePattern.first != pattern )
     {
-      uint y = i;
-      for ( ; y < pattern.size(); ++y )
+      cachePattern.first = pattern;
+      patternHelpers.clear();
+      bool strict = false;
+      for ( uint i = 0; i < pattern.size(); ++i )
       {
-        const char c = pattern[ y ];
-        uint byte_size = utf8_char_length( static_cast< unsigned char >( c ) );
-        if ( byte_size == 1 ) // ASCII
+        uint y = i;
+        for ( ; y < pattern.size(); ++y )
         {
-          const bool isSpace = c == sep;
-          if ( isSpace )
-            break;
-          else if ( c > 0 && isupper( c ) )
+          const char c = pattern[ y ];
+          uint byte_size = utf8_char_length( static_cast< unsigned char >( c ) );
+          if ( byte_size == 1 ) // ASCII
+          {
+            const bool isSpace = c == sep;
+            if ( isSpace )
+              break;
+            else if ( c > 0 && isupper( c ) )
+              strict = true;
+          }
+          else
+          {
+            y += byte_size - 1; // y will be incremented to the next index to check via for-increment ++y
             strict = true;
+          }
         }
-        else
+        if ( uint newPatternSize = y - i; y > 0 )
         {
-          y += byte_size - 1; // y will be incremented to the next index to check via for-increment ++y
-          strict = true;
+          patternHelpers.push_back(
+            patternHelper_c{ .pattern = pattern.substr( i, newPatternSize ), .strict = strict } );
+          strict = false;
+          i = y;
         }
-      }
-      if ( uint newPatternSize = y - i; y > 0 )
-      {
-        patternHelpers.push_back( patternHelper_c{ .pattern = pattern.substr( i, newPatternSize ), .strict = strict } );
-        strict = false;
-        i = y;
       }
     }
 
