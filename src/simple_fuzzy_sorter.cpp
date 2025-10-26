@@ -237,17 +237,18 @@ namespace
    *   -put togehter multi token results
    * \param getPositions true: get positions instead of a rating
    */
-  result_t get_score( const string_view &text, const string_view &pattern, const bool getPositions )
+  result_t get_score( const string_view &text, const char *pattern, const bool getPositions )
   {
-    if ( pattern.empty() )
+    if ( pattern == nullptr || pattern[ 0 ] == '\0' )
       return getPositions ? result_t{ vector< uint >() } : result_t{ FULL_MATCH };
-    if ( pattern.size() == 1 ) // this will be applied on all file-names, so this must be very fast
+    if ( pattern[ 1 ] == '\0' ) // this will be applied on all file-names, so this must be very fast
     {
-      if ( std::islower( pattern.back() ) )
+      string_view p = pattern;
+      if ( std::islower( p.back() ) )
       {
         const auto res = get_strict_score( text,
                                            string{ static_cast< char >(
-                                             std::toupper( static_cast< int >( pattern.back() ) ) ) },
+                                             std::toupper( static_cast< int >( p.back() ) ) ) },
                                            getPositions );
         if ( getPositions || std::get< int >( res ) != MISMATCH )
           return res;
@@ -255,8 +256,6 @@ namespace
 
       return get_strict_score( text, pattern, getPositions );
     }
-    if ( pattern.size() > text.size() )
-      return getPositions ? result_t{ vector< uint >() } : result_t{ MISMATCH };
 
     const char sep = ' ';
 
@@ -270,15 +269,16 @@ namespace
     // a small cache for the last pattern - so we don't need to create every check patternHelper
     static pair< string, vector< patternHelper_c > > cachePattern;
     vector< patternHelper_c > &patternHelpers = cachePattern.second;
-    if ( cachePattern.first != pattern )
+    if ( cachePattern.first.compare( pattern ) != 0 )
     {
       cachePattern.first = pattern;
+      const string_view patternString = cachePattern.first;
       patternHelpers.clear();
       bool strict = false;
-      for ( uint i = 0; i < pattern.size(); ++i )
+      for ( uint i = 0; i < patternString.size(); ++i )
       {
         uint y = i;
-        for ( ; y < pattern.size(); ++y )
+        for ( ; y < patternString.size(); ++y )
         {
           const char c = pattern[ y ];
           uint byte_size = utf8_char_length( static_cast< unsigned char >( c ) );
@@ -299,7 +299,7 @@ namespace
         if ( uint newPatternSize = y - i; y > 0 )
         {
           patternHelpers.push_back(
-            patternHelper_c{ .pattern = pattern.substr( i, newPatternSize ), .strict = strict } );
+            patternHelper_c{ .pattern = patternString.substr( i, newPatternSize ), .strict = strict } );
           strict = false;
           i = y;
         }
