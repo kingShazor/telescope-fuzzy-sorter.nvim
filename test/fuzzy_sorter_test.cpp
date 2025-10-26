@@ -11,109 +11,109 @@ using namespace fuzzy_score_n;
 
 TEST( FuzzySorter, empty_pattern_test )
 {
-  auto score = fzs_get_score( "init.lua", "" );
+  auto score = fuzzy_score_n::fzs_get_score( "init.lua", "" );
   EXPECT_EQ( score, FULL_MATCH );
 }
 
 TEST( FuzzySorter, fuzzy_file_match )
 {
-  auto score = fzs_get_score( "init.lua", "init" );
+  auto score = fuzzy_score_n::fzs_get_score( "init.lua", "init" );
   EXPECT_EQ( score, FULL_MATCH );
 }
 
 TEST( FuzzySorter, fuzzy_file_match_2 )
 {
-  auto score = fzs_get_score( "/home/shazor/.config/nvim/init.lua", "init" );
+  auto score = fuzzy_score_n::fzs_get_score( "/home/shazor/.config/nvim/init.lua", "init" );
   EXPECT_EQ( score, FULL_MATCH );
 }
 
 // das nächste zeichen ist kein Wortanfang (erwartet $ oder '.', '('...
 TEST( FuzzySorter, fuzzy_file_match_missing_end_bonus )
 {
-  auto score = fzs_get_score( "init.lua", "init." );
+  auto score = fuzzy_score_n::fzs_get_score( "init.lua", "init." );
   EXPECT_EQ( score, FULL_MATCH - BOUNDARY_WORD );
 }
 
 // das erste zeichen ist kein Wortanfang
 TEST( FuzzySorter, fuzzy_file_match_missing_start_bonus )
 {
-  auto score = fzs_get_score( "init.lua", "nit" );
+  auto score = fuzzy_score_n::fzs_get_score( "init.lua", "nit" );
   EXPECT_EQ( score, FULL_MATCH - BOUNDARY_WORD );
 }
 
 // missing both word boundarie missing both word boundaries
 TEST( FuzzySorter, fuzzy_file_match_missing_both_bounds )
 {
-  auto score = fzs_get_score( "init.lua", "ni" );
+  auto score = fuzzy_score_n::fzs_get_score( "init.lua", "ni" );
   EXPECT_EQ( score, FULL_MATCH - BOUNDARY_BOTH );
 }
 
 TEST( FuzzySorter, fuzzy_file_mapping_suggest )
 {
-  auto score = fzs_get_score( "mapping_suggest_station_header.cpp", "mapping suggest st" );
+  auto score = fuzzy_score_n::fzs_get_score( "mapping_suggest_station_header.cpp", "mapping suggest st" );
   EXPECT_EQ( score, FULL_MATCH * 3 - BOUNDARY_WORD );
 }
 
 TEST( FuzzySorter, fuzzy_file_location_util )
 {
-  auto score = fzs_get_score( "integration_location_util.cpp", "location util" );
+  auto score = fuzzy_score_n::fzs_get_score( "integration_location_util.cpp", "location util" );
   EXPECT_EQ( score, FULL_MATCH * 2 );
 }
 
 TEST( FuzzySorter, fuzzy_file_util_location )
 {
-  auto score = fzs_get_score( "integration_location_util.cpp", "util location" );
+  auto score = fuzzy_score_n::fzs_get_score( "integration_location_util.cpp", "util location" );
   EXPECT_EQ( score, FULL_MATCH * 2 );
 }
 
 TEST( FuzzySorter, fuzzy_file_in_lo_ut )
 {
-  auto score = fzs_get_score( "integration_location_util.cpp", "in lo ut" );
+  auto score = fuzzy_score_n::fzs_get_score( "integration_location_util.cpp", "in lo ut" );
   EXPECT_EQ( score, FULL_MATCH * 3 - BOUNDARY_WORD * 3 );
 }
 
 TEST( FuzzySorter, fuzzy_file_very_fuzzy )
 {
-  auto score = fzs_get_score( "mapping_suggest_station_header.cpp", "mpns" );
+  auto score = fuzzy_score_n::fzs_get_score( "mapping_suggest_station_header.cpp", "mpns" );
   EXPECT_GT( score, 30 );
   EXPECT_LT( score, 40 );
 }
 
 TEST( FuzzySorter, fuzzy_file_upper_case_also_match )
 {
-  auto score = fzs_get_score( "INTEGRATION.cmake", "int cmake" );
+  auto score = fuzzy_score_n::fzs_get_score( "INTEGRATION.cmake", "int cmake" );
   EXPECT_EQ( score, FULL_MATCH * 2 - BOUNDARY_WORD );
 }
 
 TEST( FuzzySorter, fuzzy_file_very_important_char_1 )
 {
-  auto score = fzs_get_score( "übertrieben.xml", "über" );
+  auto score = fuzzy_score_n::fzs_get_score( "übertrieben.xml", "über" );
   EXPECT_EQ( score, FULL_MATCH - BOUNDARY_WORD );
 }
 
 // über will be a sctrict search
 TEST( FuzzySorter, fuzzy_file_very_important_char_2 )
 {
-  auto score = fzs_get_score( "üBertrieben.xml", "über" );
+  auto score = fuzzy_score_n::fzs_get_score( "üBertrieben.xml", "über" );
   EXPECT_EQ( score, MISMATCH );
 }
 
 TEST( FuzzySorter, fuzzy_file_very_important_char_3 )
 {
-  auto score = fzs_get_score( "übertriebenerText.xml", "über text" );
+  auto score = fuzzy_score_n::fzs_get_score( "übertriebenerText.xml", "über text" );
   EXPECT_EQ( score, FULL_MATCH * 2 - 2 * BOUNDARY_WORD );
 }
 
 // Not - supported Utf8-fuzzy search
 TEST( FuzzySorter, fuzzy_file_very_important_char_4 )
 {
-  auto score = fzs_get_score( "Übertrieben.xml", "über" );
+  auto score = fuzzy_score_n::fzs_get_score( "Übertrieben.xml", "über" );
   EXPECT_EQ( score, MISMATCH );
 }
 
 TEST( FuzzySorter, NoMatch )
 {
-  auto score = fzs_get_score( "init.lua", "vim" );
+  auto score = fuzzy_score_n::fzs_get_score( "init.lua", "vim" );
   EXPECT_EQ( score, MISMATCH );
 }
 
@@ -124,26 +124,26 @@ const char *poem = "Twinkle, twinkle, little star, "
 
 TEST( FuzzySorter, fuzzy_poem_match )
 {
-  auto score = fzs_get_score( poem, "above" );
+  auto score = fuzzy_score_n::fzs_get_score( poem, "above" );
   EXPECT_EQ( score, FULL_MATCH );
 }
 
 TEST( FuzzySorter, fuzzy_poem_mismatch )
 {
-  auto score = fzs_get_score( poem, "alien" );
+  auto score = fuzzy_score_n::fzs_get_score( poem, "alien" );
   EXPECT_EQ( score, MISMATCH );
 }
 
 TEST( FuzzySorter, fuzzy_poem_wrd )
 {
-  auto score = fzs_get_score( poem, "wrd" );
+  auto score = fuzzy_score_n::fzs_get_score( poem, "wrd" );
   EXPECT_EQ( score, 67 ); // 3 matches + 2 gaps => 20/30
 }
 
 // found text phrase are 2 words: "rld s"
 TEST( FuzzySorter, fuzzy_poem_rds )
 {
-  auto score = fzs_get_score( poem, "rds" );
+  auto score = fuzzy_score_n::fzs_get_score( poem, "rds" );
   EXPECT_EQ( score, 67 - BOUNDARY_BOTH ); // 3 matches + 2 gaps => 20/30
 }
 
@@ -180,31 +180,31 @@ TEST( FuzzySorter, fuzzy_file_upper_case_pos )
 
 TEST( FuzzySorter, fuzzy_file_upper_case_only )
 {
-  auto score = fzs_get_score( "README.md", "read" );
+  auto score = fuzzy_score_n::fzs_get_score( "README.md", "read" );
   EXPECT_EQ( score, FULL_MATCH - BOUNDARY_WORD );
 }
 
 TEST( FuzzySorter, fuzzy_word_mismatch_leads_to_distract )
 {
-  auto score = fzs_get_score( "mapping_suggest_station_header.cpp", "map sug ope" );
+  auto score = fuzzy_score_n::fzs_get_score( "mapping_suggest_station_header.cpp", "map sug ope" );
   EXPECT_EQ( score, MISMATCH );
 }
 
 TEST( FuzzySorter, fuzzy_do_not_use_same_word )
 {
-  auto score = fzs_get_score( "tmpl/unique_type_range.h", "que ue" );
+  auto score = fuzzy_score_n::fzs_get_score( "tmpl/unique_type_range.h", "que ue" );
   EXPECT_EQ( score, MISMATCH );
 }
 
 TEST( FuzzySorter, fuzzy_do_not_use_same_word_but_find_word )
 {
-  auto score = fzs_get_score( "network/mail_queue.cpp", "que ue" );
+  auto score = fuzzy_score_n::fzs_get_score( "network/mail_queue.cpp", "que ue" );
   EXPECT_EQ( score, FULL_MATCH * 2 - 2 * BOUNDARY_WORD );
 }
 
 TEST( FuzzySorter, fuzzy_seg_fault )
 {
-  auto score = fzs_get_score( "mach", "wrapper" );
+  auto score = fuzzy_score_n::fzs_get_score( "mach", "wrapper" );
   EXPECT_EQ( score, MISMATCH );
 }
 
@@ -213,7 +213,7 @@ TEST( FuzzySorter, fuzzy_serch_for_one_char )
   using namespace std;
   using namespace std::chrono;
   auto start = high_resolution_clock::now();
-  auto score = fzs_get_score( "network/Mail_queue.cpp", "m" );
+  auto score = fuzzy_score_n::fzs_get_score( "network/Mail_queue.cpp", "m" );
   EXPECT_EQ( score, FULL_MATCH - BOUNDARY_WORD );
   auto end = high_resolution_clock::now();
   auto duration = duration_cast< milliseconds >( end - start );
@@ -249,7 +249,7 @@ TEST( FuzzySorter, fuzzy_serch_for_one_char )
 //   for ( int i = 0; i < rounds; ++i )
 //     for ( const auto &file : src_files )
 //     {
-//       const auto score = fzs_get_score( file.data(), searchWord );
+//       const auto score = fuzzy_score_n::fzs_get_score( file.data(), searchWord );
 //       if ( score != MISMATCH )
 //         fzs_get_positions( file.data(), searchWord );
 //     }
@@ -283,7 +283,7 @@ TEST( FuzzySorter, fuzzy_perf_firefox )
   {
     cout << "done: " << i << "%" << endl;
     for ( const auto &text : filenames )
-      auto score = fzs_get_score( text.c_str(), pattern );
+      auto score = fuzzy_score_n::fzs_get_score( text.c_str(), pattern );
   }
 
   auto end = high_resolution_clock::now();
