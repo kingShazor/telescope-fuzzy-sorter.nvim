@@ -92,6 +92,53 @@ namespace
 
   using result_t = variant< int, vector< uint > >;
 
+  // vector< uint > get_positions( const string_view &text,
+  //                               vector< string_view > &patterns,
+  //                               vector< pair< uint, uint > > &blocks )
+  // {
+  //   vector< uint > result;
+  //   for ( uint i = 0; i < patterns.size(); ++i )
+  //   {
+  //     const auto &[ start, last ] = blocks[ i ];
+  //     const auto &pattern = patterns[ i ];
+  //     if ( pattern.size() == last - start + 1 )
+  //     {
+  //       for ( uint y = 0; y < pattern.size(); ++y )
+  //         result.push_back( y );
+  //     }
+  //     else
+  //     {
+  //       uint searchPos = start;
+  //       for ( const char c : pattern )
+  //         if ( const auto foundPos = text.find( c, searchPos ); foundPos != std::string::npos )
+  //         {
+  //           result.push_back( foundPos );
+  //           searchPos = foundPos + 1;
+  //         }
+  //     }
+  //   }
+  //
+  //   return result;
+  // }
+
+  /*
+   * calcing a fast strict score (the pattern must match ascending).
+   */
+  result_t get_strict_score_1( const string_view &text, const char pattern, const bool getPositions )
+  {
+    if ( const auto pos = text.find( pattern ); pos != std::string::npos )
+    {
+      if ( getPositions )
+        return vector< uint >{ static_cast< unsigned int >( pos ) };
+
+      return FULL_MATCH - BOUNDARY_BOTH + scoreBoundary( text, pos, pos + 1 );
+    }
+
+    if ( getPositions )
+      return vector< uint >();
+    return MISMATCH;
+  }
+
   /*
    * calcing a fast strict score (the pattern must match ascending).
    */
@@ -231,7 +278,7 @@ namespace
     return score;
   }
 
-  inline bool fastCmp( const string &cachePattern, const char *pattern )
+  inline bool fast_cmp( const string &cachePattern, const char *pattern )
   {
     const auto patternSize = strlen( pattern );
     if ( cachePattern.size() != patternSize )
@@ -259,15 +306,14 @@ namespace
       string_view p = pattern;
       if ( std::islower( p.back() ) )
       {
-        const auto res = get_strict_score( text,
-                                           string{
-                                             static_cast< char >( std::toupper( static_cast< int >( p.back() ) ) ) },
-                                           getPositions );
+        const auto res = get_strict_score_1( text,
+                                             static_cast< char >( std::toupper( static_cast< int >( p.back() ) ) ),
+                                             getPositions );
         if ( getPositions || std::get< int >( res ) != MISMATCH )
           return res;
       }
 
-      return get_strict_score( text, pattern, getPositions );
+      return get_strict_score_1( text, *pattern, getPositions );
     }
 
     const char sep = ' ';
@@ -282,7 +328,7 @@ namespace
     // a small cache for the last pattern - so we don't need to create every check patternHelper
     static pair< string, vector< patternHelper_c > > cachePattern;
     vector< patternHelper_c > &patternHelpers = cachePattern.second;
-    if ( !fastCmp( cachePattern.first, pattern ) )
+    if ( !fast_cmp( cachePattern.first, pattern ) )
     {
       cachePattern.first = pattern;
       const string_view patternString = cachePattern.first;

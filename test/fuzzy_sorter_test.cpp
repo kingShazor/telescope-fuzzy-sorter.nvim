@@ -220,73 +220,73 @@ TEST( FuzzySorter, fuzzy_serch_for_one_char )
   cout << "duration in ms:" << duration.count() << endl;
 }
 
-// TEST( FuzzySorter, fuzzy_perf_test )
-// {
-//   std::vector< std::string > src_files = { "include/logging/logger.h",
-//                                            "include/logging/logger.cpp",
-//                                            "include/cfg/config.h",
-//                                            "src/import/config_parser.cpp",
-//                                            "include/network/network_manager.h",
-//                                            "src/network/network_manager.cpp",
-//                                            "include/core/file_utils.h",
-//                                            "src/core/file_utils.cpp",
-//                                            "include/engine/math_engine.h",
-//                                            "src/engine/math_engine.cpp",
-//                                            "include/engine/renderer.h",
-//                                            "src/engine/renderer.cpp",
-//                                            "include/event/event_system.h",
-//                                            "src/event/event_system.cpp",
-//                                            "include/util/string_helpers.h",
-//                                            "src/database/database_connector.cpp",
-//                                            "src/core/resource_loader.cpp",
-//                                            "include/core/thread_pool.h",
-//                                            "src/core/memory_manager.cpp",
-//                                            "include/logging/error_handler.h" };
-//   const uint n = 6000000;
-//   const uint rounds = n / src_files.size();
-//   const char *searchWord = "f"; //"util engine cpp";
-//   // const char *searchWord = "math engine cpp";
-//   for ( int i = 0; i < rounds; ++i )
-//     for ( const auto &file : src_files )
-//     {
-//       const auto score = fzs_get_score( file.data(), searchWord );
-//       if ( score != MISMATCH )
-//         fzs_get_positions( file.data(), searchWord );
-//     }
-// }
-
-TEST( FuzzySorter, fuzzy_perf_firefox )
+TEST( FuzzySorter, fuzzy_perf_test )
 {
-  using namespace std;
-  using namespace std::chrono;
-  vector< string > filenames;
-  std::string file = "/home/shazor/firefox_files.txt";
-  ifstream input( file, std::ios::in );
-  if ( !input.is_open() )
-  {
-    cout << "not open :-(";
-    return;
-  }
-
-  string filename;
-  while ( std::getline( input, filename ) )
-  {
-    filenames.push_back( filename );
-  }
-
-  cout << "filenames read: " << filenames.size() << endl;
-
-  const char *pattern = "wrapper unsafe";
-
-  auto start = high_resolution_clock::now();
-  for ( int i = 0; i < 100; ++i )
-  {
-    cout << "done: " << i << "%" << endl;
-    for ( const auto &text : filenames )
-      auto score = fzs_get_score( text.c_str(), pattern );
-  }
-
-  auto end = high_resolution_clock::now();
-  auto duration = duration_cast< milliseconds >( end - start );
-  cout << "duration in ms:" << duration.count() << endl;
+  std::vector< std::string > src_files = { "include/logging/logger.h",
+                                           "include/logging/logger.cpp",
+                                           "include/cfg/config.h",
+                                           "src/import/config_parser.cpp",
+                                           "include/network/network_manager.h",
+                                           "src/network/network_manager.cpp",
+                                           "include/core/file_utils.h",
+                                           "src/core/file_utils.cpp",
+                                           "include/engine/math_engine.h",
+                                           "src/engine/math_engine.cpp",
+                                           "include/engine/renderer.h",
+                                           "src/engine/renderer.cpp",
+                                           "include/event/event_system.h",
+                                           "src/event/event_system.cpp",
+                                           "include/util/string_helpers.h",
+                                           "src/database/database_connector.cpp",
+                                           "src/core/resource_loader.cpp",
+                                           "include/core/thread_pool.h",
+                                           "src/core/memory_manager.cpp",
+                                           "include/logging/error_handler.h" };
+  const uint n = 6000000;
+  const uint rounds = n / src_files.size();
+  const char *searchWord = "f"; //"util engine cpp";
+  // const char *searchWord = "math engine cpp";
+  for ( int i = 0; i < rounds; ++i )
+    for ( const auto &file : src_files )
+    {
+      const auto score = fzs_get_score( file.data(), searchWord );
+      if ( score != MISMATCH )
+        fzs_get_positions( file.data(), searchWord );
+    }
 }
+
+// TEST( FuzzySorter, fuzzy_perf_firefox )
+// {
+//   using namespace std;
+//   using namespace std::chrono;
+//   vector< string > filenames;
+//   std::string file = "/home/shazor/firefox_files.txt";
+//   ifstream input( file, std::ios::in );
+//   if ( !input.is_open() )
+//   {
+//     cout << "not open :-(";
+//     return;
+//   }
+//
+//   string filename;
+//   while ( std::getline( input, filename ) )
+//   {
+//     filenames.push_back( filename );
+//   }
+//
+//   cout << "filenames read: " << filenames.size() << endl;
+//
+//   const char *pattern = "wrapper unsafe";
+//
+//   auto start = high_resolution_clock::now();
+//   for ( int i = 0; i < 100; ++i )
+//   {
+//     cout << "done: " << i << "%" << endl;
+//     for ( const auto &text : filenames )
+//       auto score = fzs_get_score( text.c_str(), pattern );
+//   }
+//
+//   auto end = high_resolution_clock::now();
+//   auto duration = duration_cast< milliseconds >( end - start );
+//   cout << "duration in ms:" << duration.count() << endl;
+// }
