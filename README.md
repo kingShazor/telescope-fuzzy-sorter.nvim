@@ -72,7 +72,6 @@ The sorter doesn't support regular expression, inverse search, prefix or suffix 
 - [ ] lua opt: understand that prefilters
 - [x] c++: write a usefull performance test (let chatgpt generate some names)
 - [x] c++: optimize fuzzy - if pattern can't be found at pattern index p > 1, we probably don't need to start at i + 1 again
-- [ ] c++/lua return/receive floats
 - [ ] c++ use c string instead of string_view for text
 - [ ] README.md add performance pros
 - [ ] README.md add credits

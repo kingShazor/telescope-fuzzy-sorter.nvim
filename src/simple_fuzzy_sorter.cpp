@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <cctype>
+#include <cstring>
 #include <iostream>
 #include <string_view>
 #include <utility>
@@ -230,6 +231,15 @@ namespace
     return score;
   }
 
+  inline bool fastCmp( const string &cachePattern, const char *pattern )
+  {
+    const auto patternSize = strlen( pattern );
+    if ( cachePattern.size() != patternSize )
+      return false;
+
+    return std::memcmp( cachePattern.data(), pattern, patternSize ) == 0;
+  }
+
   /*
    * This Function will be called within two steps: calcing score (first step) calcing positions to highlight characters
    * (seocnd step). Telescope uses discard mode, so MISMATCHs in step one will be discarded. So when positions are
@@ -272,7 +282,7 @@ namespace
     // a small cache for the last pattern - so we don't need to create every check patternHelper
     static pair< string, vector< patternHelper_c > > cachePattern;
     vector< patternHelper_c > &patternHelpers = cachePattern.second;
-    if ( cachePattern.first.compare( pattern ) != 0 )
+    if ( !fastCmp( cachePattern.first, pattern ) )
     {
       cachePattern.first = pattern;
       const string_view patternString = cachePattern.first;
