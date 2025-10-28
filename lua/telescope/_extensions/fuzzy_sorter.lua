@@ -4,47 +4,23 @@
 local fuzzy_sorter = require("fzs_lib")
 local sorters = require("telescope.sorters")
 
-local get_fuzzy_sorter = function(_) --todo use opts - for what?
-	-- local clear_filter_fun = function(self, prompt)
-	--   local filter = '^(' .. self._delimiter .. '(%S+)' .. '[' .. self._delimiter .. '%s]' .. ')'
-	--   local matched = prompt:match(filter)
-	--
-	--   if matched == nil then
-	--     return prompt
-	--   end
-	--   return prompt:sub(#matched + 1, -1)
-	-- end
-
+local get_fuzzy_sorter = function() --todo use opts - for what?
 	return sorters.Sorter:new({
 		init = function(self)
 			if self.filter_function then
 				self.__highlight_prefilter = nil
 			end
 		end,
-		destroy = function(_) end,
-		start = function(_, _) end,
+		destroy = nil,
+		start = nil,
 		discard = true,
 		scoring_function = function(_, prompt, line)
 			return fuzzy_sorter.get_score(line, prompt)
 		end,
-		highlighter = function(self, prompt, display)
+		highlighter = function(_, prompt, display)
 			return fuzzy_sorter.get_pos(display, prompt)
 		end,
 	})
-end
-
-local fast_extend = function(opts, conf)
-	local ret = {}
-	ret.case_mode = vim.F.if_nil(opts.case_mode, conf.case_mode)
-	ret.fuzzy = vim.F.if_nil(opts.fuzzy, conf.fuzzy)
-	return ret
-end
-
-local wrap_sorter = function(conf)
-	return function(opts)
-		opts = opts or {}
-		return get_fuzzy_sorter(fast_extend(opts, conf))
-	end
 end
 
 return require("telescope").register_extension({
@@ -52,22 +28,19 @@ return require("telescope").register_extension({
 		local override_file = vim.F.if_nil(ext_config.override_file_sorter, true)
 		local override_generic = vim.F.if_nil(ext_config.override_generic_sorter, true)
 
-		local conf = {}
-		conf.case_mode = vim.F.if_nil(ext_config.case_mode, "smart_case")
-		conf.fuzzy = vim.F.if_nil(ext_config.fuzzy, true)
+		-- conf.case_mode = vim.F.if_nil(ext_config.case_mode, "smart_case")
+		-- conf.fuzzy = vim.F.if_nil(ext_config.fuzzy, true)
 
 		if override_file then
-			config.file_sorter = wrap_sorter(conf)
+			config.file_sorter = get_fuzzy_sorter
 		end
 
 		if override_generic then
-			config.generic_sorter = wrap_sorter(conf)
+			config.generic_sorter = get_fuzzy_sorter
 		end
 	end,
 	exports = {
-		fuzzy_sorter = function(opts)
-			return get_fuzzy_sorter(opts or { case_mode = "smart_case", fuzzy = true })
-		end,
+		fuzzy_sorter = get_fuzzy_sorter,
 	},
 	health = function()
 		local health = vim.health or require("health")
