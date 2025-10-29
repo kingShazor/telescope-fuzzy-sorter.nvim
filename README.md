@@ -64,6 +64,20 @@ The sorter doesn't support regular expression, inverse search, prefix or suffix 
       pcall(require('telescope').load_extension, 'fuzzy_sorter')
 ```
 
+## Performance/Advantages
+
+On AMD Ryzen 7 Pro 3700u the fuzzy sorter can sort 'wrapper unsafe' in firefox repo with about 400k files 100 times within 4 secs.
+Used as plugin it has the same performance as telescope-fzf-native.nvim. It takes about a second to filter for the file name.
+So I don't plan to put much work into boosting performance anymore.
+
+Difference to telescope-fzf-native: the result is a bit cleaner (less fuzzyness), but telescope-fzf-native has still more options to filter file names.
+Regardless, I’ll still keep using my own extension. :)
+
+## Credits
+
+Thanks to Simon Hauser (https://github.com/Conni2461) for the original work on the https://github.com/nvim-telescope/telescope-fzf-native.nvim,
+from which I adapted parts of the Lua and CMake code for this project.
+
 ## 🚀 Backlog
 
 #### high prio
@@ -73,8 +87,8 @@ The sorter doesn't support regular expression, inverse search, prefix or suffix 
 - [x] c++: write a usefull performance test (let chatgpt generate some names)
 - [x] c++: optimize fuzzy - if pattern can't be found at pattern index p > 1, we probably don't need to start at i + 1 again
 - [ ] c++ try index search for fuzzy
-- [ ] README.md add performance pros
-- [ ] README.md add credits
+- [x] README.md add performance pros
+- [x] README.md add credits
 
 #### mid prio
 
