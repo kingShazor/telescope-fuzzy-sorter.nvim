@@ -64,7 +64,7 @@ namespace
     }
   };
 
-  uint utf8_char_length( unsigned char c )
+  u32 utf8_char_length( unsigned char c )
   {
     if ( ( c & 0x80 ) == 0x00 )
       return 1; // 0xxxxxxx -> 1-byte char
@@ -78,7 +78,7 @@ namespace
   }
 
   // end is after the last found sign.
-  int scoreBoundary( const string_view &text, uint begin, uint end )
+  int scoreBoundary( const string_view &text, u32 begin, u32 end )
   {
     static const vector< unsigned char > boundary = boundaryChars();
     int score = 0;
@@ -90,7 +90,7 @@ namespace
     return score;
   }
 
-  using result_t = variant< int, vector< uint > >;
+  using result_t = variant< int, vector< u32 > >;
 
   /*
    * calcing a fast strict score (the pattern must match ascending).
@@ -100,13 +100,13 @@ namespace
     if ( const auto pos = text.find( pattern ); pos != std::string::npos )
     {
       if ( getPositions )
-        return vector< uint >{ static_cast< unsigned int >( pos ) };
+        return vector< u32 >{ static_cast< unsigned int >( pos ) };
 
       return FULL_MATCH - BOUNDARY_BOTH + scoreBoundary( text, pos, pos + 1 );
     }
 
     if ( getPositions )
-      return vector< uint >();
+      return vector< u32 >();
     return MISMATCH;
   }
 
@@ -117,11 +117,11 @@ namespace
   {
     if ( const auto pos = text.find( pattern ); pos != std::string::npos )
     {
-      const uint patternSize = static_cast< uint >( pattern.size() );
+      const u32 patternSize = static_cast< u32 >( pattern.size() );
       if ( getPositions )
       {
-        vector< uint > positions;
-        for ( uint x = pos; x < pos + patternSize; ++x )
+        vector< u32 > positions;
+        for ( u32 x = pos; x < pos + patternSize; ++x )
           positions.push_back( x );
         return positions;
       }
@@ -130,7 +130,7 @@ namespace
     }
 
     if ( getPositions )
-      return vector< uint >();
+      return vector< u32 >();
     return MISMATCH;
   }
 
@@ -148,30 +148,30 @@ namespace
                             const string_view &pattern,
                             const string &upperPattern,
                             const bool getPositions,
-                            vector< pair< uint, uint > > *blockedRanges = nullptr )
+                            vector< pair< u32, u32 > > *blockedRanges = nullptr )
   {
     int score = MISMATCH;
     const size_t maxStartPos = text.size() - pattern.size() + 1;
     // static vectors are faster
-    static vector< uint > positions;
-    static vector< uint > resultPositions;
+    static vector< u32 > positions;
+    static vector< u32 > resultPositions;
     positions.clear();
     resultPositions.clear();
 
-    const uint maxScore = static_cast< uint >( pattern.size() * MATCH_CHAR );
-    uint startSearchPos = 0;
-    uint gap = 0;
-    uint penalty = 0;
-    for ( uint i = 0; i < maxStartPos; ++i )
+    const u32 maxScore = static_cast< u32 >( pattern.size() * MATCH_CHAR );
+    u32 startSearchPos = 0;
+    u32 gap = 0;
+    u32 penalty = 0;
+    for ( u32 i = 0; i < maxStartPos; ++i )
     {
       penalty = 0;
       startSearchPos = i;
-      uint maxVarStartPos = maxStartPos - 1;
-      for ( uint p = 0; p < pattern.size(); ++p )
+      u32 maxVarStartPos = maxStartPos - 1;
+      for ( u32 p = 0; p < pattern.size(); ++p )
       {
         const char patternChar = pattern[ p ];
         const char upperPatternChar = upperPattern[ p ];
-        uint pos = startSearchPos;
+        u32 pos = startSearchPos;
         ++maxVarStartPos;
         gap = 0;
         // find fuzzy position
@@ -213,7 +213,7 @@ namespace
         if ( positions.empty() )
           i = pos;
         else if ( gap > 0 )
-          penalty += ( gap * static_cast< uint >( GAP_PENALTY ) );
+          penalty += ( gap * static_cast< u32 >( GAP_PENALTY ) );
         positions.push_back( pos );
         startSearchPos = pos + 1;
       }
@@ -272,7 +272,7 @@ namespace
   result_t get_score( const string_view &text, const char *pattern, const bool getPositions )
   {
     if ( pattern == nullptr || pattern[ 0 ] == '\0' ) // empty pattern must return match, because of discard
-      return getPositions ? result_t{ vector< uint >() } : result_t{ FULL_MATCH };
+      return getPositions ? result_t{ vector< u32 >() } : result_t{ FULL_MATCH };
     if ( pattern[ 1 ] == '\0' ) // this will be applied on all file-names, so this must be very fast
     {
       string_view p = pattern;
@@ -309,13 +309,13 @@ namespace
       const string_view patternString = cachePattern.first;
       patternHelpers.clear();
       bool strict = false;
-      for ( uint i = 0; i < patternString.size(); ++i )
+      for ( u32 i = 0; i < patternString.size(); ++i )
       {
-        uint y = i;
+        u32 y = i;
         for ( ; y < patternString.size(); ++y )
         {
           const char c = pattern[ y ];
-          uint byte_size = utf8_char_length( static_cast< unsigned char >( c ) );
+          u32 byte_size = utf8_char_length( static_cast< unsigned char >( c ) );
           if ( byte_size == 1 ) // ASCII
           {
             const bool isSpace = c == sep;
@@ -330,12 +330,12 @@ namespace
             strict = true;
           }
         }
-        if ( uint newPatternSize = y - i; y > 0 )
+        if ( u32 newPatternSize = y - i; y > 0 )
         {
             // textChar = static_cast< char >( tolower( static_cast< unsigned char >( textChar ) ) );
           string upper;
           if ( !strict )
-            for ( uint u = i; u < i + newPatternSize; ++u )
+            for ( u32 u = i; u < i + newPatternSize; ++u )
               upper.push_back( static_cast< char >( toupper( static_cast< int >( patternString[ u ] ) ) ) );
           patternHelpers.push_back(
             patternHelper_c{ .pattern = patternString.substr( i, newPatternSize ), .upper = upper, .strict = strict } );
@@ -346,7 +346,7 @@ namespace
     }
 
     if ( cachePattern.first.size() > text.size() )
-      return getPositions ? result_t{ vector< uint >() } : result_t{ MISMATCH };
+      return getPositions ? result_t{ vector< u32 >() } : result_t{ MISMATCH };
 
     // optimization reason: reduce creation of empty vectors
     if ( patternHelpers.size() == 1 )
@@ -357,18 +357,18 @@ namespace
     }
 
     // ugly but maybe a little bit faster
-    result_t result = getPositions ? result_t{ std::in_place_type< vector< uint > > } : result_t{ MISMATCH };
-    vector< pair< uint, uint > > range;
+    result_t result = getPositions ? result_t{ std::in_place_type< vector< u32 > > } : result_t{ MISMATCH };
+    vector< pair< u32, u32 > > range;
     for ( const auto &patternHelper : patternHelpers )
     {
       auto patternResult = patternHelper.strict ? get_strict_score( text, patternHelper.pattern, getPositions )
                                                 : get_fuzzy_score( text, patternHelper.pattern, patternHelper.upper, getPositions, &range );
       if ( getPositions )
       {
-        auto &patternPositions = std::get< vector< uint > >( patternResult );
+        auto &patternPositions = std::get< vector< u32 > >( patternResult );
         if ( patternPositions.empty() )
           return patternPositions;
-        auto &positions = std::get< vector< uint > >( result );
+        auto &positions = std::get< vector< u32 > >( result );
         if ( positions.empty() )
           std::swap( positions, patternPositions );
         else
@@ -412,15 +412,15 @@ double fzs_get_score( const char *text, const char *pattern )
 fzs_position_t *fzs_get_positions( const char *text, const char *pattern )
 {
   // save mem - nice trick :-)
-  static array< uint, BUFFER_SIZE > array;
+  static array< u32, BUFFER_SIZE > array;
   static fzs_position_t result{ .data = array.data(), .size = 0 };
-  const auto positions = std::get< vector< uint > >( get_score( text, pattern, true ) );
+  const auto positions = std::get< vector< u32 > >( get_score( text, pattern, true ) );
 
   const auto size = std::min( positions.size(), array.size() );
-  for ( uint i = 0; i < size; ++i )
+  for ( u32 i = 0; i < size; ++i )
     result.data[ i ] = positions[ i ];
 
-  result.size = static_cast< uint >( positions.size() );
+  result.size = static_cast< u32 >( positions.size() );
 
   return &result;
 }

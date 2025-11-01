@@ -1,6 +1,7 @@
 #pragma once
 
-using uint = unsigned int;
+#include <cstdint>
+using u32 = std::uint32_t;
 
 namespace fuzzy_score_n
 {
